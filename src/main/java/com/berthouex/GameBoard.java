@@ -16,10 +16,12 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The Game board consists of a square grid and is designed for two players who will pass control between them to play the game.
+ */
 public class GameBoard {
     private final JFrame frame;
     private final JPanel panel;
-    private final JLabel messageLabel;
     private final JLabel gameNameLabel;
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
@@ -27,18 +29,22 @@ public class GameBoard {
     private static final Color TILE_COLOR = new Color(0xff8d1c);
     private static final Color GRAY = new Color(0x999999);
     private static final Color GOLD = new Color(0xffd700);
-    private static final int GRID_SIZE = 3;
-    private final MoveHandler moveHandler;
-    private final List<JButton> buttons;
-    private static final int MIN_TURNS_TO_WIN = (GRID_SIZE * 2) - 1;
 
-    public GameBoard() {
+    protected final int GRID_SIZE;
+    protected final JLabel messageLabel;
+    protected final MoveHandler moveHandler;
+    protected final List<JButton> buttons;
+    protected final GameLogic gameLogic;
+
+    public GameBoard(final int gridSize) {
+        this.GRID_SIZE = gridSize;
         this.buttons = new ArrayList<>();
         this.moveHandler = new MoveHandler();
         this.frame = new JFrame();
         this.panel = new JPanel();
         this.gameNameLabel = new JLabel("Tic Tac Toe", JLabel.CENTER);
         this.messageLabel = new JLabel("Player 1 turn", JLabel.CENTER);
+        this.gameLogic = new GameLogic(this);
 
         frameSetup();
     }
@@ -113,19 +119,7 @@ public class GameBoard {
      * @return a button
      */
     private JButton createBoardTile() {
-        JButton tile = buttonDefault("", e -> {
-            JButton button = (JButton) e.getSource();
-            button.setText(moveHandler.move());
-            button.setEnabled(false);
-
-            messageLabel.setText(moveHandler.currentPlayer() + " turn");
-            if (moveHandler.turnCount() >= MIN_TURNS_TO_WIN) {
-                if (checkForWin()) {
-                    messageLabel.setText(moveHandler.previousPlayer() + " WINS");
-                    buttons.forEach(b -> b.setEnabled(false));
-                }
-            }
-        });
+        JButton tile = buttonDefault("", gameLogic::move);
 
         tile.setBackground(TILE_COLOR);
         tile.setForeground(Color.WHITE);
@@ -176,63 +170,6 @@ public class GameBoard {
             messageLabel.setText("Player 1 turn");
             moveHandler.reset();
         });
-    }
-
-    /**
-     * Check rows, columns, and diagonals for victory condition.
-     *
-     * @return <code>true</code> if a player has won
-     */
-    private boolean checkForWin() {
-        String[][] grid = new String[GRID_SIZE][GRID_SIZE]; // TODO
-
-        // Fill grid with button text
-        for (int i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
-            grid[i / GRID_SIZE][i % GRID_SIZE] = buttons.get(i).getText(); // convert 1D array to 2D array
-        }
-
-        // Check rows and columns
-        for (int i = 0; i < GRID_SIZE; i++) {
-            boolean rowMatch = true;
-            boolean colMatch = true;
-            String rowStart = grid[i][0];
-            String colStart = grid[0][i];
-
-            for (int j = 0; j < GRID_SIZE; j++) {
-                if (rowStart.isEmpty() || !grid[i][j].equals(rowStart)) {
-                    rowMatch = false;
-                }
-                if (colStart.isEmpty() || !grid[j][i].equals(colStart)) {
-                    colMatch = false;
-                }
-            }
-
-            if (rowMatch || colMatch) return true;
-        }
-
-        // Check top-left to bottom-right diagonal
-        String leftToRightDiagonal = grid[0][0];
-        boolean diag1Match = !leftToRightDiagonal.isEmpty();
-
-        for (int i = 0; i < GRID_SIZE; i++) {
-            if (!grid[i][i].equals(leftToRightDiagonal)) {
-                diag1Match = false;
-                break;
-            }
-        }
-
-        // Check top-right to bottom-left diagonal
-        String rightToLeftDiagonal = grid[0][GRID_SIZE - 1];
-        boolean diag2Match = !rightToLeftDiagonal.isEmpty();
-
-        for (int i = 0; i < GRID_SIZE; i++) {
-            if (!grid[i][GRID_SIZE - 1 - i].equals(rightToLeftDiagonal)) {
-                diag2Match = false;
-                break;
-            }
-        }
-
-        return diag1Match || diag2Match;
     }
 
     /**

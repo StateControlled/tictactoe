@@ -73,27 +73,17 @@ public class MoveHandler {
      * @return  the current player's symbol
      */
     public String move() {
-        String current = player.symbol();
-        nextTurn();
-        return current;
+        return player.symbol();
     }
 
     public String currentPlayer() {
         return this.player.player();
     }
 
-    public String currentPlayerSymbol() {
-        return this.player.symbol();
-    }
-
-    public String previousPlayer() {
-        return this.player.previous();
-    }
-
     /**
      * Advance to the next turn by changing to the next player and incrementing the turn counter.
      */
-    private void nextTurn() {
+    public void nextTurn() {
         this.player = player.nextTurn();
         this.turnCounter++;
     }
