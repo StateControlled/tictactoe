@@ -3,7 +3,7 @@ package com.berthouex;
 /**
  * Tracks the current turn and what symbol is in use.
  */
-public class MoveHandler {
+public class PlayerHandler {
 
     /**
      * Data object for holding information about the players.
@@ -62,7 +62,7 @@ public class MoveHandler {
     private Player player;
     private int turnCounter;
 
-    public MoveHandler() {
+    public PlayerHandler() {
         this.player = Player.PLAYER_ONE;
         this.turnCounter = 0;
     }

@@ -22,7 +22,7 @@ import java.util.List;
 public class GameBoard {
     private final JFrame frame;
     private final JPanel panel;
-    private final JLabel gameNameLabel;
+    private final JLabel GAME_NAME_LABEL;
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
     private static final int BUTTON_SIZE = 100;
@@ -32,23 +32,26 @@ public class GameBoard {
 
     protected final int GRID_SIZE;
     protected final JLabel messageLabel;
-    protected final MoveHandler moveHandler;
+    protected final PlayerHandler playerHandler;
     protected final List<JButton> buttons;
     protected final GameLogic gameLogic;
 
     public GameBoard(final int gridSize) {
         this.GRID_SIZE = gridSize;
         this.buttons = new ArrayList<>();
-        this.moveHandler = new MoveHandler();
+        this.playerHandler = new PlayerHandler();
         this.frame = new JFrame();
         this.panel = new JPanel();
-        this.gameNameLabel = new JLabel("Tic Tac Toe", JLabel.CENTER);
+        this.GAME_NAME_LABEL = new JLabel("Tic Tac Toe", JLabel.CENTER);
         this.messageLabel = new JLabel("Player 1 turn", JLabel.CENTER);
         this.gameLogic = new GameLogic(this);
 
         frameSetup();
     }
 
+    /**
+     * Adds major components to the JFrame.
+     */
     private void frameSetup() {
         frame.setLayout(new GridLayout(1, 1));
         panel.setLayout(new GridBagLayout());
@@ -77,10 +80,10 @@ public class GameBoard {
         constraints.gridy = 0;
         constraints.ipady = 40;
         constraints.gridwidth = GRID_SIZE;
-        gameNameLabel.setOpaque(true);
-        gameNameLabel.setBackground(GRAY);
-        gameNameLabel.setFont(new Font("", Font.PLAIN, 32));
-        panel.add(gameNameLabel, constraints);
+        GAME_NAME_LABEL.setOpaque(true);
+        GAME_NAME_LABEL.setBackground(GRAY);
+        GAME_NAME_LABEL.setFont(new Font("", Font.PLAIN, 32));
+        panel.add(GAME_NAME_LABEL, constraints);
 
         // label
         constraints.gridx = GRID_SIZE;
@@ -93,7 +96,7 @@ public class GameBoard {
         // new game button
         constraints.gridx = GRID_SIZE;
         constraints.gridy = 2;
-        JButton newGameButton = createGameButton("New Game", e -> reset());
+        JButton newGameButton = createGameButton("New Game", e -> gameLogic.reset());
         panel.add(newGameButton, constraints);
 
         // exit button
@@ -158,18 +161,6 @@ public class GameBoard {
         button.addActionListener(onClick);
 
         return button;
-    }
-
-    /**
-     * Resets the game.
-     */
-    private void reset() {
-        buttons.forEach(button -> {
-            button.setText("");
-            button.setEnabled(true);
-            messageLabel.setText("Player 1 turn");
-            moveHandler.reset();
-        });
     }
 
     /**

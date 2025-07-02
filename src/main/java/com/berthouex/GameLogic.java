@@ -13,6 +13,18 @@ public class GameLogic {
     }
 
     /**
+     * Resets the game.
+     */
+    public void reset() {
+        board.buttons.forEach(button -> {
+            button.setText("");
+            button.setEnabled(true);
+            board.messageLabel.setText("Player 1 turn");
+            board.playerHandler.reset();
+        });
+    }
+
+    /**
      * Handles the actual game logic: changes the game tile to the current player's symbol, an "X" or an "O", and checks
      * for win conditions.
      *
@@ -20,22 +32,22 @@ public class GameLogic {
      */
     public void move(ActionEvent e) {
         JButton button = (JButton) e.getSource();
-        button.setText(board.moveHandler.move());
+        button.setText(board.playerHandler.move());
         button.setEnabled(false);
 
         final int MIN_TURNS_TO_WIN = (board.GRID_SIZE * 2) - 1;
 
         // check for win condition and, if met, display win result and return to stop game.
-        if (board.moveHandler.turnCount() >= MIN_TURNS_TO_WIN - 1) {
+        if (board.playerHandler.turnCount() >= MIN_TURNS_TO_WIN - 1) {
             if (checkForWin(board.buttons, board.GRID_SIZE)) {
-                board.messageLabel.setText(board.moveHandler.currentPlayer() + " WINS");
+                board.messageLabel.setText(board.playerHandler.currentPlayer() + " WINS");
                 board.buttons.forEach(b -> b.setEnabled(false));
                 return;
             }
         }
 
-        board.moveHandler.nextTurn();
-        board.messageLabel.setText(board.moveHandler.currentPlayer() + " turn");
+        board.playerHandler.nextTurn();
+        board.messageLabel.setText(board.playerHandler.currentPlayer() + " turn");
     }
 
     /**
