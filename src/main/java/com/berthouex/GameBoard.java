@@ -110,7 +110,7 @@ public class GameBoard {
     /**
      * Builds a button that will be used as a tile for the board with a default action on click.
      *
-     * @return  a button
+     * @return a button
      */
     private JButton createBoardTile() {
         JButton tile = buttonDefault("", e -> {
@@ -120,8 +120,8 @@ public class GameBoard {
 
             messageLabel.setText(moveHandler.currentPlayer() + " turn");
             if (moveHandler.turnCount() >= MIN_TURNS_TO_WIN) {
-                if (checkForWin(moveHandler.currentPlayerSymbol().charAt(0))) { // TODO
-                    messageLabel.setText(moveHandler.currentPlayer() + " WINS");
+                if (checkForWin()) {
+                    messageLabel.setText(moveHandler.previousPlayer() + " WINS");
                     buttons.forEach(b -> b.setEnabled(false));
                 }
             }
@@ -138,9 +138,9 @@ public class GameBoard {
     /**
      * Creates a button with game control functionality.
      *
-     * @param text      button text to display
-     * @param onClick   action on click
-     * @return          a button
+     * @param text    button text to display
+     * @param onClick action on click
+     * @return a button
      */
     private JButton createGameButton(String text, ActionListener onClick) {
         JButton button = buttonDefault(text, onClick);
@@ -153,9 +153,9 @@ public class GameBoard {
     /**
      * Builds a button.
      *
-     * @param text      button text to display
-     * @param onClick   action on click
-     * @return          a button
+     * @param text    button text to display
+     * @param onClick action on click
+     * @return a button
      */
     private JButton buttonDefault(String text, ActionListener onClick) {
         JButton button = new JButton();
@@ -166,6 +166,9 @@ public class GameBoard {
         return button;
     }
 
+    /**
+     * Resets the game.
+     */
     private void reset() {
         buttons.forEach(button -> {
             button.setText("");
@@ -178,46 +181,58 @@ public class GameBoard {
     /**
      * Check rows, columns, and diagonals for victory condition.
      *
-     * @return  <code>true</code> if a player has won
+     * @return <code>true</code> if a player has won
      */
-    private boolean checkForWin(char playerSymbol) {
+    private boolean checkForWin() {
         String[][] grid = new String[GRID_SIZE][GRID_SIZE]; // TODO
 
         // Fill grid with button text
         for (int i = 0; i < GRID_SIZE * GRID_SIZE; i++) {
-            grid[i / GRID_SIZE][i % GRID_SIZE] = buttons.get(i).getText();
+            grid[i / GRID_SIZE][i % GRID_SIZE] = buttons.get(i).getText(); // convert 1D array to 2D array
         }
 
         // Check rows and columns
         for (int i = 0; i < GRID_SIZE; i++) {
-            StringBuilder tempBuilder = new StringBuilder();
+            boolean rowMatch = true;
+            boolean colMatch = true;
+            String rowStart = grid[i][0];
+            String colStart = grid[0][i];
+
             for (int j = 0; j < GRID_SIZE; j++) {
-                 tempBuilder.append(grid[i][j]);
+                if (rowStart.isEmpty() || !grid[i][j].equals(rowStart)) {
+                    rowMatch = false;
+                }
+                if (colStart.isEmpty() || !grid[j][i].equals(colStart)) {
+                    colMatch = false;
+                }
             }
 
-            String row = tempBuilder.toString();
-            if (row.length() != GRID_SIZE) {
-                return false;
-            }
-
-            if (inRow(row, playerSymbol)) {
-                return true;
-            }
-
+            if (rowMatch || colMatch) return true;
         }
-        return false;
-    }
 
-    private boolean inRow(String str, char toFind) {
-        int counter = GRID_SIZE - 1;
-        for (int i = 1; i < str.length(); i++) {
-            if (str.charAt(i) == toFind && str.charAt(i) == str.charAt(i - 1)) {
-                counter--;
-            } else {
-                counter = GRID_SIZE - 1;
+        // Check top-left to bottom-right diagonal
+        String leftToRightDiagonal = grid[0][0];
+        boolean diag1Match = !leftToRightDiagonal.isEmpty();
+
+        for (int i = 0; i < GRID_SIZE; i++) {
+            if (!grid[i][i].equals(leftToRightDiagonal)) {
+                diag1Match = false;
+                break;
             }
         }
-        return counter == 0;
+
+        // Check top-right to bottom-left diagonal
+        String rightToLeftDiagonal = grid[0][GRID_SIZE - 1];
+        boolean diag2Match = !rightToLeftDiagonal.isEmpty();
+
+        for (int i = 0; i < GRID_SIZE; i++) {
+            if (!grid[i][GRID_SIZE - 1 - i].equals(rightToLeftDiagonal)) {
+                diag2Match = false;
+                break;
+            }
+        }
+
+        return diag1Match || diag2Match;
     }
 
     /**
